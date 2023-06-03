@@ -29,25 +29,27 @@ public class CustomerController {
         return new ResponseEntity<>(SERVICE.findCustomerById(id), HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping("/insert")
     public ResponseEntity<Customer> signUp(@RequestBody Customer customer) {
         Customer addedCustomer = SERVICE.insert(customer);
         return new ResponseEntity<>(addedCustomer, HttpStatus.CREATED);
     }
 
-    @PutMapping
-    public Customer updateCustomer(@RequestBody Customer updatedCustomer) {
-        return SERVICE.update(updatedCustomer);
+    @PutMapping("/update")
+    public ResponseEntity<Customer> updateCustomer(@RequestBody Customer updatedCustomer) {
+        Customer customer = SERVICE.update(updatedCustomer);
+        return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
-    @PutMapping("/excludingAddress")
-    public Customer updateCustomerExcludingAddress(@RequestBody Customer updatedCustomer) {
-        return SERVICE.updateExcludingAddress(updatedCustomer);
+    @PutMapping("update/excludingAddress")
+    public ResponseEntity<Customer> updateCustomerExcludingAddress(@RequestBody Customer updatedCustomer) {
+        Customer customer = SERVICE.updateExcludingAddress(updatedCustomer);
+        return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/{customerId}")
-    public boolean deleteCustomer(@PathVariable("customerId") int customerId) {
-        return SERVICE.delete(customerId);
+    @DeleteMapping(path = "delete/{customerId}")
+    public ResponseEntity<?> deleteCustomer(@PathVariable("customerId") int customerId) {
+        SERVICE.delete(customerId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }
