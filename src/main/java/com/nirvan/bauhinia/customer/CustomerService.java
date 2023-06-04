@@ -173,7 +173,7 @@ public class CustomerService {
 
     public boolean delete(int customerId) {
         if(!REPOSITORY.existsById(customerId)) {
-            throw new InvalidParameterException("Customer with id (" + customerId + ") does not exist");
+            throw new CustomerNotFoundException("Customer with id (" + customerId + ") does not exist");
         }
         REPOSITORY.deleteById(customerId);
         return true;
