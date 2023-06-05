@@ -2,6 +2,8 @@ package com.nirvan.bauhinia.item;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nirvan.bauhinia.cart.Cart;
+import com.nirvan.bauhinia.order.ProductOrder;
+import com.nirvan.bauhinia.review.Review;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,6 +37,13 @@ public class Item {
     @ManyToMany(mappedBy = "items")
     @JsonIgnore
     private List<Cart> carts;
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
+    private List<Review> reviews;
+
+    @ManyToOne
+    @JsonIgnore
+    private ProductOrder order;
 
     public Item(String sku, String size, String colour, double cost) {
         this.sku = sku;
