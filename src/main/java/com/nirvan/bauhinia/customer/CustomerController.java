@@ -41,13 +41,13 @@ public class CustomerController {
         return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
-    @PutMapping("update/excludingAddress")
+    @PutMapping("/update/excludingAddress")
     public ResponseEntity<Customer> updateCustomerExcludingAddress(@RequestBody Customer updatedCustomer) {
         Customer customer = SERVICE.updateExcludingAddress(updatedCustomer);
         return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "delete/{customerId}")
+    @DeleteMapping(path = "/delete/{customerId}")
     public ResponseEntity<?> deleteCustomer(@PathVariable("customerId") int customerId) {
         SERVICE.delete(customerId);
         return new ResponseEntity<>(HttpStatus.OK);

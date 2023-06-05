@@ -2,6 +2,7 @@ package com.nirvan.bauhinia.customer;
 
 import com.nirvan.bauhinia.address.Address;
 import com.nirvan.bauhinia.cart.Cart;
+import com.nirvan.bauhinia.order.ProductOrder;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,6 +46,9 @@ public class Customer implements Serializable {
 
     @OneToOne(cascade = CascadeType.ALL)
     private Cart cart;
+
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "customer")
+    private List<ProductOrder> orders;
 
     public Customer(String firstName, String lastName, String email, String password, String contactNumber1,
                     String contactNumber2) {
