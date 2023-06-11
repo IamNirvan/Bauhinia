@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.List;
 
 @AllArgsConstructor
@@ -16,7 +15,7 @@ import java.util.List;
 @Data
 @Entity(name = "Customer")
 @Table(name = "customer", uniqueConstraints = { @UniqueConstraint(name = "email_unique", columnNames = "email")})
-public class Customer implements Serializable {
+public class Customer {
 
     @Id
     @GeneratedValue
@@ -40,29 +39,74 @@ public class Customer implements Serializable {
     @Column(name = "contact_number_2", nullable = false)
     private String contactNumber2;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "customer_id_fk")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer")
     private List<Address> addresses;
 
     @OneToOne(cascade = CascadeType.ALL)
-    private Cart cart;
+    private Cart cart = new Cart();
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "customer")
     private List<ProductOrder> orders;
 
-    public Customer(String firstName, String lastName, String email, String password, String contactNumber1,
-                    String contactNumber2) {
+    /**
+     * This constructor will be helpful when logging the user into the system.
+     * @param email user's registered email address
+     * @param password a valid password
+     * */
+    public Customer(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
+    /**
+     * This constructor will be helpful when registering a user.
+     * The address can be created separately and stored; therefore,
+     * this constructor does not require the address
+     * @param firstName user's first name
+     * @param lastName user's last name
+     * @param email user's email address. This will be used instead of a username
+     * @param password a valid password
+     * @param contactNumber1 the first working contact number
+     * @param contactNumber2 the second working contact number
+     * */
+    public Customer(
+            String firstName,
+            String lastName,
+            String email,
+            String password,
+            String contactNumber1,
+            String contactNumber2
+    ) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.contactNumber1 = contactNumber1;
         this.contactNumber2 = contactNumber2;
-        this.cart = new Cart();
     }
 
-    public Customer(String firstName, String lastName, String email, String password, String contactNumber1,
-                    String contactNumber2, List<Address> addresses) {
+    /**
+     * This constructor will be helpful when registering a user.
+     * When registering, the user must provide the first name, last name,
+     * email address, password, 2 contact numbers, a billing address and
+     * shipping address.
+     * @param firstName user's first name
+     * @param lastName user's last name
+     * @param email user's email address. This will be used instead of a username
+     * @param password a valid password
+     * @param contactNumber1 the first working contact number
+     * @param contactNumber2 the second working contact number
+     * @param addresses a list of address which includes the shipping and billing address
+     * */
+    public Customer(
+            String firstName,
+            String lastName,
+            String email,
+            String password,
+            String contactNumber1,
+            String contactNumber2,
+            List<Address> addresses
+    ) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -70,31 +114,6 @@ public class Customer implements Serializable {
         this.contactNumber1 = contactNumber1;
         this.contactNumber2 = contactNumber2;
         this.addresses = addresses;
-        this.cart = new Cart();
-    }
-
-    public Customer(int id, String firstName, String lastName, String email, String password, String contactNumber1,
-                    String contactNumber2, Cart cart) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.contactNumber1 = contactNumber1;
-        this.contactNumber2 = contactNumber2;
-        this.cart = cart;
-    }
-
-    public Customer(String firstName, String lastName, String email, String password, String contactNumber1,
-                    String contactNumber2, List<Address> addresses, Cart cart) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.contactNumber1 = contactNumber1;
-        this.contactNumber2 = contactNumber2;
-        this.addresses = addresses;
-        this.cart = cart;
     }
 }
 
