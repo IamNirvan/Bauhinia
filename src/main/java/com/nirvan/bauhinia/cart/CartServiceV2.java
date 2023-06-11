@@ -4,11 +4,9 @@ import com.nirvan.bauhinia.exception.CartNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
-public class CartService {
+public class CartServiceV2 {
     private final CartRepository CART_REPOSITORY;
     private static final String ID_NOT_FOUND_MESSAGE = "Cart with the following id does not exist: %s";
 

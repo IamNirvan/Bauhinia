@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(path = "/api/v2/carts")
 @RequiredArgsConstructor
-public class CartController {
-    private final CartService CART_SERVICE;
+public class CartControllerV2 {
+    private final CartServiceV2 CART_SERVICE;
 
     /**
      * Provides information regarding all the items within a specific cart
