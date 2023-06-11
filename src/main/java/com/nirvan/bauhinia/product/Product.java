@@ -1,7 +1,9 @@
 package com.nirvan.bauhinia.product;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nirvan.bauhinia.category.Category;
+import com.nirvan.bauhinia.item.Item;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,15 +29,21 @@ public class Product {
     @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @ManyToMany
-    @JoinTable(name = "product_categories",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private List<Category> categories;
+    @ManyToMany(mappedBy = "products")
+    @JsonIgnore
+    private List<Category> categories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product")
+    private List<Item> itemList = new ArrayList<>();
 
     public Product(String manufacturer, String productName) {
         this.manufacturer = manufacturer;
         this.productName = productName;
-        this.categories = new ArrayList<>();
+    }
+
+    public Product(String manufacturer, String productName, List<Category> categories) {
+        this.manufacturer = manufacturer;
+        this.productName = productName;
+        this.categories = categories;
     }
 }
