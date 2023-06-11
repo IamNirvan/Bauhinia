@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v2/inventory-clerks")
 @RequiredArgsConstructor
-public class InventoryClerkController {
+public class InventoryClerkControllerV2 {
     private final InventoryClerkServiceV2 IC_SERVICE;
 
     /**

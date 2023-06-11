@@ -1,11 +1,13 @@
-package com.nirvan.bauhinia.employee.productionmanager;
+package com.nirvan.bauhinia.employee.administrator;
 
 import com.nirvan.bauhinia.employee.AccountType;
 import com.nirvan.bauhinia.employee.EmployeeLoginRequest;
 import com.nirvan.bauhinia.employee.EmployeeService;
 import com.nirvan.bauhinia.employee.UpdateEmployeeCredentialsRequest;
-import com.nirvan.bauhinia.employee.administrator.Administrator;
-import com.nirvan.bauhinia.exception.*;
+import com.nirvan.bauhinia.exception.AdminNotFoundException;
+import com.nirvan.bauhinia.exception.InvalidCredentialsException;
+import com.nirvan.bauhinia.exception.InvalidParameterException;
+import com.nirvan.bauhinia.exception.WeakPasswordException;
 import com.nirvan.bauhinia.utility.Validation;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
@@ -13,15 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
-public class ProductionManagerServiceV2 extends EmployeeService {
-    private final ProductionManagerRepository PM_REPOSITORY;
+//@RequiredArgsConstructor
+public class AdministratorServiceV2 extends EmployeeService {
+    private final AdministratorRepository ADMIN_REPOSITORY;
     private final Validation VALIDATION;
-    private static final String ID_NOT_FOUND_MESSAGE = "Production manager with the following id does not exist: %s";
-    private static final String EMAIL_NOT_FOUND_MESSAGE = "Production manager with the following email does not exist: %s";
+    private static final String ID_NOT_FOUND_MESSAGE = "Administrator with the following id does not exist: %s";
+    private static final String EMAIL_NOT_FOUND_MESSAGE = "Administrator with the following email does not exist: %s";
     private static final String INVALID_FIRST_NAME_MESSAGE = "First name is invalid: %s";
     private static final String INVALID_LAST_NAME_MESSAGE = "Last name is invalid: %s";
     private static final String INVALID_EMAIL_MESSAGE = "Email is invalid: %s";
@@ -31,43 +31,39 @@ public class ProductionManagerServiceV2 extends EmployeeService {
     private static final String INVALID_CREDENTIALS_MESSAGE = "Aborted! Invalid credentials";
 
     @Autowired
-    public ProductionManagerServiceV2(Validation validation, ProductionManagerRepository pmRepository) {
-        super(validation);
-        PM_REPOSITORY = pmRepository;
+    public AdministratorServiceV2(Validation VALIDATION, AdministratorRepository adminRepository, Validation validation) {
+        super(VALIDATION);
+        ADMIN_REPOSITORY = adminRepository;
         this.VALIDATION = validation;
     }
 
-    public ProductionManager fetchProductionManagerById(int employeeId) {
-        return PM_REPOSITORY.findById(employeeId)
-                .orElseThrow(() -> new ProductionManagerNotFoundException(String.format(ID_NOT_FOUND_MESSAGE, employeeId)));
+    public Administrator fetchAdminById(int employeeId) {
+        return  ADMIN_REPOSITORY.findById(employeeId)
+                .orElseThrow(() -> new AdminNotFoundException(String.format(ID_NOT_FOUND_MESSAGE, employeeId)));
     }
 
-    private ProductionManager fetchProductionManagerByEmail(String email) {
-        return PM_REPOSITORY.findProductionManagerByEmail(email)
+    private Administrator fetchAdministratorByEmail(String email) {
+        return ADMIN_REPOSITORY.findAdministratorByEmail(email)
                 .orElseThrow(() -> new AdminNotFoundException(String.format(EMAIL_NOT_FOUND_MESSAGE, email)));
     }
 
-    public List<ProductionManager> fetchAllProductionManagers() {
-        return new ArrayList<>(PM_REPOSITORY.findAll());
-    }
-
-    public Boolean addProductionManager(@NotNull ProductionManager productionManager)
+    public boolean addAdministrator(@NotNull Administrator administrator)
             throws InvalidParameterException, WeakPasswordException {
-        final String EMAIL = productionManager.getEmail();
-        priorInsertValidation(productionManager);
+        final String EMAIL = administrator.getEmail();
+        priorInsertValidation(administrator);
         //
-        // Check if the production manager's email is not taken
+        // Check if the administrator's email is not taken
         //
-        if(PM_REPOSITORY.existsProductionManagerByEmail(productionManager.getEmail())) {
+        if(ADMIN_REPOSITORY.existsAdministratorByEmail(administrator.getEmail())) {
             throw new InvalidParameterException(String.format(DUPLICATE_EMAIL_MESSAGE, EMAIL));
         }
         //
         // Set the account type
         //
-        productionManager.setAccountType(AccountType.PRODUCTION_MANAGER);
+        administrator.setAccountType(AccountType.ADMINISTRATOR);
 
         try {
-            PM_REPOSITORY.save(productionManager);
+            ADMIN_REPOSITORY.save(administrator);
         }
         catch (DataIntegrityViolationException ex) {
             throw new InvalidParameterException(String.format(DUPLICATE_EMAIL_MESSAGE, EMAIL));
@@ -76,12 +72,12 @@ public class ProductionManagerServiceV2 extends EmployeeService {
     }
 
     @Transactional
-    public Boolean updateProductionManager(
+    public boolean updateBasicDetails(
             int employeeId,
             String firstName,
             String lastName
     ) throws InvalidParameterException {
-        final ProductionManager PERSISTED_PRODUCTION_MANAGER = fetchProductionManagerById(employeeId);
+        final Administrator PERSISTED_ADMIN = fetchAdminById(employeeId);
         //
         // Check if first name is valid
         //
@@ -89,7 +85,7 @@ public class ProductionManagerServiceV2 extends EmployeeService {
             if(!VALIDATION.validNonBlankParam(firstName)) {
                 throw new InvalidParameterException(String.format(INVALID_FIRST_NAME_MESSAGE, firstName));
             }
-            PERSISTED_PRODUCTION_MANAGER.setFirstName(firstName);
+            PERSISTED_ADMIN.setFirstName(firstName);
         }
         //
         // Check if last name is valid
@@ -98,15 +94,15 @@ public class ProductionManagerServiceV2 extends EmployeeService {
             if(!VALIDATION.validNonBlankParam(lastName)) {
                 throw new InvalidParameterException(String.format(INVALID_LAST_NAME_MESSAGE, lastName));
             }
-            PERSISTED_PRODUCTION_MANAGER.setLastName(lastName);
+            PERSISTED_ADMIN.setLastName(lastName);
         }
-        PM_REPOSITORY.save(PERSISTED_PRODUCTION_MANAGER);
+        ADMIN_REPOSITORY.save(PERSISTED_ADMIN);
         return true;
     }
 
     public boolean updateCredentials(@NotNull UpdateEmployeeCredentialsRequest updateCredentialsRequest)
             throws InvalidParameterException, WeakPasswordException {
-        final ProductionManager PERSISTED_PRODUCTION_MANAGER = fetchProductionManagerById(updateCredentialsRequest.getId());
+        final Administrator PERSISTED_ADMIN = fetchAdminById(updateCredentialsRequest.getId());
         final String EMAIL = updateCredentialsRequest.getEmail();
         final String PASSWORD = updateCredentialsRequest.getPassword();
         //
@@ -115,10 +111,10 @@ public class ProductionManagerServiceV2 extends EmployeeService {
         if(!VALIDATION.validNonNullAndNonBlankParam(EMAIL)) {
             throw new InvalidParameterException(String.format(INVALID_EMAIL_MESSAGE, EMAIL));
         }
-        else if(PM_REPOSITORY.existsProductionManagerByEmail(EMAIL) && !EMAIL.equals(PERSISTED_PRODUCTION_MANAGER.getEmail())) {
+        else if(ADMIN_REPOSITORY.existsAdministratorByEmail(EMAIL) && !EMAIL.equals(PERSISTED_ADMIN.getEmail())) {
             throw new InvalidParameterException(String.format(DUPLICATE_EMAIL_MESSAGE, EMAIL));
         }
-        PERSISTED_PRODUCTION_MANAGER.setEmail(EMAIL);
+        PERSISTED_ADMIN.setEmail(EMAIL);
         //
         // Validate password
         //
@@ -128,20 +124,21 @@ public class ProductionManagerServiceV2 extends EmployeeService {
         else if(!VALIDATION.validPassword(PASSWORD)) {
             throw new WeakPasswordException(String.format(WEAK_PASSWORD_MESSAGE, PASSWORD));
         }
-        PERSISTED_PRODUCTION_MANAGER.setPassword(PASSWORD);
-        PM_REPOSITORY.save(PERSISTED_PRODUCTION_MANAGER);
-        return true;
+        PERSISTED_ADMIN.setPassword(PASSWORD);
+        ADMIN_REPOSITORY.save(PERSISTED_ADMIN);
+        return false;
     }
 
-    public Boolean deleteProductionManager(int employeeId) {
-        if(!PM_REPOSITORY.existsById(employeeId)) {
-            throw new ProductionManagerNotFoundException(String.format(ID_NOT_FOUND_MESSAGE, employeeId));
+    public boolean deleteAdministrator(@NotNull int employeeId) {
+        boolean exists = ADMIN_REPOSITORY.existsById(employeeId);
+        if(!exists) {
+            throw new AdminNotFoundException(String.format(ID_NOT_FOUND_MESSAGE, employeeId));
         }
-        PM_REPOSITORY.deleteById(employeeId);
+        ADMIN_REPOSITORY.deleteById(employeeId);
         return true;
     }
 
-    public ProductionManager login(EmployeeLoginRequest loginRequest) {
+    public Administrator login(EmployeeLoginRequest loginRequest) {
         // Check and see if valid (non-null) credentials were passed
         final String EMAIL = loginRequest.getEmail();
         final String PASSWORD = loginRequest.getPassword();
@@ -154,10 +151,10 @@ public class ProductionManagerServiceV2 extends EmployeeService {
         }
 
         // Check if the credentials exist
-        ProductionManager productionManager = fetchProductionManagerByEmail(EMAIL);
-        if(!PASSWORD.equals(productionManager.getPassword())) {
+        Administrator administrator = fetchAdministratorByEmail(EMAIL);
+        if(!PASSWORD.equals(administrator.getPassword())) {
             throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
         }
-        return productionManager;
+        return administrator;
     }
 }

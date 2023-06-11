@@ -13,9 +13,8 @@ import lombok.NoArgsConstructor;
 @Entity(name = "Administrator")
 @DiscriminatorValue(value = "ADMINISTRATOR")
 public class Administrator extends Employee {
-
-    public Administrator(String firstName, String lastName, String email) {
-        super(firstName, lastName, email);
+    public Administrator(String firstName, String lastName, String email, String password) {
+        super(firstName, lastName, email, password);
     }
 
 }

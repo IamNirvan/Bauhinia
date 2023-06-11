@@ -9,13 +9,14 @@ import com.nirvan.bauhinia.utility.Validation;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class InventoryClerkService extends EmployeeService {
+public class InventoryClerkServiceV2 extends EmployeeService {
     private final InventoryClerkRepository IC_REPOSITORY;
     private final Validation VALIDATION;
     private static final String ID_NOT_FOUND_MESSAGE = "Inventory clerk with the following id does not exist: %s";
@@ -29,7 +30,7 @@ public class InventoryClerkService extends EmployeeService {
     private static final String INVALID_CREDENTIALS_MESSAGE = "Aborted! Invalid credentials";
 
     @Autowired
-    public InventoryClerkService(Validation validation, InventoryClerkRepository icRepository) {
+    public InventoryClerkServiceV2(Validation validation, InventoryClerkRepository icRepository) {
         super(validation);
         IC_REPOSITORY = icRepository;
         this.VALIDATION = validation;
@@ -63,7 +64,12 @@ public class InventoryClerkService extends EmployeeService {
         // Set the account type
         //
         inventoryClerk.setAccountType(AccountType.ADMINISTRATOR);
-        IC_REPOSITORY.save(inventoryClerk);
+        try {
+            IC_REPOSITORY.save(inventoryClerk);
+        }
+        catch (DataIntegrityViolationException ex) {
+            throw new InvalidParameterException(String.format(DUPLICATE_EMAIL_MESSAGE, EMAIL));
+        }
         return true;
     }
 

@@ -7,12 +7,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity(name = "Employee")
-//@Table(name = "employee", uniqueConstraints = { @UniqueConstraint(name = "email_unique", columnNames = "email") })
-@Table(name = "employee")
+@Table(name = "employee", uniqueConstraints = { @UniqueConstraint(name = "email_unique", columnNames = "email") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "employee_type", discriminatorType = DiscriminatorType.STRING)
 public class Employee {
-
     @Id
     @GeneratedValue
     private int id;
@@ -26,13 +24,16 @@ public class Employee {
     @Column(name = "email", nullable = false)
     private String email;
 
+    @Column(name = "password", nullable = false)
+    private String password;
+
     @Enumerated(value = EnumType.STRING)
     private AccountType accountType;
 
-    public Employee(String firstName, String lastName, String email) {
+    public Employee(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.password = password;
     }
-
 }

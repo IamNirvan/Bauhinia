@@ -1,6 +1,7 @@
 package com.nirvan.bauhinia.employee.chiefaccountant;
 
 import com.nirvan.bauhinia.employee.EmployeeLoginRequest;
+import com.nirvan.bauhinia.employee.UpdateEmployeeCredentialsRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api/v2/accountants")
+@RequestMapping("/api/v2/chief-accountants")
 @RequiredArgsConstructor
-public class ChiefAccountantController {
-    private final ChiefAccountantService CA_SERVICE;
+public class ChiefAccountantControllerV2 {
+    private final ChiefAccountantServiceV2 CA_SERVICE;
 
     /**
      * Provides all the chief accountants
@@ -35,8 +36,8 @@ public class ChiefAccountantController {
      * Allows a chief accountant to log into the system
      * @param loginRequest an instance of EmployeeLoginRequest
      * */
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody EmployeeLoginRequest loginRequest) {
+    @GetMapping("/login")
+    public ResponseEntity<ChiefAccountant> login(@RequestBody EmployeeLoginRequest loginRequest) {
         return new ResponseEntity<>(CA_SERVICE.login(loginRequest), HttpStatus.OK);
     }
 
@@ -45,7 +46,7 @@ public class ChiefAccountantController {
      * @param chiefAccountant an instance of ChiefAccountant
      * */
     @PostMapping
-    public ResponseEntity<ChiefAccountant> addChiefAccountant(@RequestBody ChiefAccountant chiefAccountant) {
+    public ResponseEntity<Boolean> addChiefAccountant(@RequestBody ChiefAccountant chiefAccountant) {
         return new ResponseEntity<>(CA_SERVICE.addChiefAccountant(chiefAccountant), HttpStatus.CREATED);
     }
 
@@ -62,6 +63,15 @@ public class ChiefAccountantController {
             @RequestParam(name = "lName", required = false) String lastName
     ) {
         return new ResponseEntity<>(CA_SERVICE.update(employeeId, firstName, lastName), HttpStatus.OK);
+    }
+
+    /**
+     * Updates the credentials of the chief accountant
+     * @param credentialsRequest an instance of UpdateEmployeeCredentialsRequest
+     * */
+    @PutMapping("/credentials")
+    public ResponseEntity<Boolean> updateCredentials(@RequestBody UpdateEmployeeCredentialsRequest credentialsRequest) {
+        return new ResponseEntity<>(CA_SERVICE.updateCredentials(credentialsRequest), HttpStatus.OK);
     }
 
     /**

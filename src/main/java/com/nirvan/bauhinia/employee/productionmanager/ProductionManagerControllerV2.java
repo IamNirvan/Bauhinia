@@ -12,8 +12,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v2/production-managers")
 @RequiredArgsConstructor
-public class ProductionManagerController {
-    private final ProductionManagerService PM_SERVICE;
+public class ProductionManagerControllerV2 {
+    private final ProductionManagerServiceV2 PM_SERVICE;
 
     /**
      * Provides all the production managers
@@ -36,8 +36,8 @@ public class ProductionManagerController {
      * Allows a production manager to log into the system
      * @param loginRequest an instance of EmployeeLoginRequest
      * */
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody EmployeeLoginRequest loginRequest) {
+    @GetMapping("/login")
+    public ResponseEntity<ProductionManager> login(@RequestBody EmployeeLoginRequest loginRequest) {
         return new ResponseEntity<>(PM_SERVICE.login(loginRequest), HttpStatus.OK);
     }
 
