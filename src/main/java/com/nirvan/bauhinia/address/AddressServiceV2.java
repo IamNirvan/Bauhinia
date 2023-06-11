@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AddressService {
+public class AddressServiceV2 {
     private final AddressRepository ADDRESS_REPOSITORY;
     private final CustomerServiceV2 CUSTOMER_SERVICE;
     private final Validation VALIDATION;
