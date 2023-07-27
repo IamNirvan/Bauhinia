@@ -12,8 +12,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v2/chief-accountants")
 @RequiredArgsConstructor
+@CrossOrigin
 public class ChiefAccountantControllerV2 {
     private final ChiefAccountantServiceV2 CA_SERVICE;
+
+    @GetMapping("/stats")
+    public ResponseEntity<ChiefAccountantStats> getChiefAccountantCount() {
+        return ResponseEntity.ok(CA_SERVICE.getChiefAccountantCount());
+    }
 
     /**
      * Provides all the chief accountants
@@ -36,7 +42,7 @@ public class ChiefAccountantControllerV2 {
      * Allows a chief accountant to log into the system
      * @param loginRequest an instance of EmployeeLoginRequest
      * */
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<ChiefAccountant> login(@RequestBody EmployeeLoginRequest loginRequest) {
         return new ResponseEntity<>(CA_SERVICE.login(loginRequest), HttpStatus.OK);
     }
@@ -78,8 +84,8 @@ public class ChiefAccountantControllerV2 {
      * Deletes an existing chief accountant
      * @param employeeId id of the targeted chief accountant
      * */
-    @DeleteMapping
-    public ResponseEntity<?> deleteChiefAccountant(@RequestParam("id") int employeeId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteChiefAccountant(@PathVariable("id") int employeeId) {
         return new ResponseEntity<>(CA_SERVICE.deleteChiefAccountant(employeeId), HttpStatus.OK);
     }
 

@@ -10,24 +10,49 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v2/customers")
 @RequiredArgsConstructor
+@CrossOrigin
 public class CustomerControllerV2 {
-    private final CustomerServiceV2 customerService;
+    private final CustomerServiceV2 CUSTOMER_SERVICE;
+
+    @GetMapping("/stats")
+    public ResponseEntity<CustomerStats> getRegisteredCustomerCount() {
+        return ResponseEntity.ok(CUSTOMER_SERVICE.getRegisteredCustomerCount());
+    }
 
     /**
      * Provides information regarding all the customers in the system
      * */
     @GetMapping
     public ResponseEntity<List<Customer>> fetchAllCustomers() {
-        return new ResponseEntity<>(customerService.fetchAllCustomers(), HttpStatus.OK);
+        return new ResponseEntity<>(CUSTOMER_SERVICE.fetchAllCustomers(), HttpStatus.OK);
     }
 
     /**
      * Provides information regarding a specific customer in the system
      * @param customerId the id of the customer
      * */
-    @GetMapping("/find")
-    public ResponseEntity<Customer> fetchCustomerById(@RequestParam("id") int customerId) {
-        return new ResponseEntity<>(customerService.fetchCustomerById(customerId), HttpStatus.OK);
+    @GetMapping("/{id}")
+    public ResponseEntity<Customer> fetchCustomerById(@PathVariable("id") int customerId) {
+        return new ResponseEntity<>(CUSTOMER_SERVICE.fetchCustomerById(customerId), HttpStatus.OK);
+    }
+
+    @GetMapping("/find/contactNumber/{number}")
+    public ResponseEntity<Customer> fetchCustomerByContactNumber(@PathVariable("number") String number) {
+        return ResponseEntity.ok(CUSTOMER_SERVICE.fetchCustomerByContactNumber(number));
+    }
+
+    @GetMapping("/find/email/{email}")
+    public ResponseEntity<Customer> fetchCustomerByEmail(@PathVariable("email") String email) {
+        return ResponseEntity.ok(CUSTOMER_SERVICE.fetchCustomerByEmail(email));
+    }
+
+    /**
+     * Allows a customer to be logged into the system
+     * @param loginRequest a request object of type CustomerLoginRequest
+     * */
+    @PostMapping("/login")
+    public ResponseEntity<Customer> login(@RequestBody CustomerLoginRequest loginRequest) {
+        return ResponseEntity.ok(CUSTOMER_SERVICE.login(loginRequest));
     }
 
     /**
@@ -35,12 +60,8 @@ public class CustomerControllerV2 {
      * @param customer a customer object
      * */
     @PostMapping
-    public ResponseEntity<String> addCustomer(@RequestBody Customer customer) {
-        boolean registered = customerService.addCustomer(customer);
-        if(registered) {
-            return new ResponseEntity<>("Token must be returned...", HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer) {
+        return ResponseEntity.ok(CUSTOMER_SERVICE.addCustomer(customer));
     }
 
     /**
@@ -60,7 +81,7 @@ public class CustomerControllerV2 {
             @RequestParam(name = "contact2", required = false) String contactNumber2
     ) {
         return new ResponseEntity<>(
-                customerService.updateCustomer(customerId,firstName,lastName,contactNumber1,contactNumber2),
+                CUSTOMER_SERVICE.updateCustomer(customerId,firstName,lastName,contactNumber1,contactNumber2),
                 HttpStatus.OK
         );
     }
@@ -71,7 +92,7 @@ public class CustomerControllerV2 {
      * */
     @PutMapping("/credentials")
     public ResponseEntity<Boolean> updateCustomer(@RequestBody UpdateCustomerCredentialsRequest request) {
-        return new ResponseEntity<>(customerService.updateCredentials(request), HttpStatus.OK);
+        return new ResponseEntity<>(CUSTOMER_SERVICE.updateCredentials(request), HttpStatus.OK);
     }
 
     /**
@@ -80,6 +101,6 @@ public class CustomerControllerV2 {
      * */
     @DeleteMapping
     public ResponseEntity<Boolean> deleteCustomer(@RequestParam("id") int customerId) {
-        return new ResponseEntity<>(customerService.deleteCustomer(customerId), HttpStatus.OK);
+        return new ResponseEntity<>(CUSTOMER_SERVICE.deleteCustomer(customerId), HttpStatus.OK);
     }
 }

@@ -30,15 +30,16 @@ public class Address {
     @Column(name = "postal_code", nullable = false)
     private String postalCode;
 
-    @Enumerated(EnumType.STRING)
-    private AddressType addressType;
+//    @Enumerated(EnumType.STRING)
+    @Column(name = "address", nullable = false)
+    private String addressType;
 
     @ManyToOne
     @JoinColumn(name = "customer_id_fk")
     @JsonIgnore
     private Customer customer;
 
-    public Address(String province, String city, String streetName, String buildingNumber, String postalCode, AddressType type) {
+    public Address(String province, String city, String streetName, String buildingNumber, String postalCode, String type) {
         this.province = province;
         this.city = city;
         this.streetName = streetName;

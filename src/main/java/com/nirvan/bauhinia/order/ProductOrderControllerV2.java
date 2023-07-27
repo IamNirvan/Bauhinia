@@ -11,8 +11,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v2/orders")
 @RequiredArgsConstructor
+@CrossOrigin
 public class ProductOrderControllerV2 {
     private final ProductOrderServiceV2 PRODUCT_ORDER_SERVICE;
+
+    @GetMapping("/stats")
+    public ResponseEntity<ProductOrderStats> getProductOrderCount() {
+        return ResponseEntity.ok(PRODUCT_ORDER_SERVICE.getProductOrderCount());
+    }
 
     /**
      * Provides information regarding all orders
@@ -31,14 +37,34 @@ public class ProductOrderControllerV2 {
         return new ResponseEntity<>(PRODUCT_ORDER_SERVICE.fetchProductOrderById(orderId), HttpStatus.OK);
     }
 
+//    /**
+//     * Adds a new product order along with the customer who owns it
+//     * @param order order object
+//     * @param customerId id of the targeted customer
+//     * */
+//    @Deprecated
+//    @PostMapping("/customer/{cusId}/shipping/{addr1}/billing/{addr2}")
+//    public ResponseEntity<ProductOrder> addProductOrder(
+//            @RequestBody ProductOrder order,
+//            @PathVariable("cusId")  int customerId,
+//            @PathVariable("addr1")  int shippingAddrId,
+//            @PathVariable("addr2")  int billingAddrId
+//
+//    ) {
+//        return new ResponseEntity<>(PRODUCT_ORDER_SERVICE.addProductOrder(order, customerId, shippingAddrId, billingAddrId), HttpStatus.CREATED);
+//    }
+
     /**
      * Adds a new product order along with the customer who owns it
      * @param order order object
      * @param customerId id of the targeted customer
      * */
-    @PostMapping
-    public ResponseEntity<Boolean> addProductOrder(@RequestBody ProductOrder order, int customerId) {
-        return new ResponseEntity<>(PRODUCT_ORDER_SERVICE.addProductOrder(order, customerId), HttpStatus.CREATED);
+    @PostMapping("/customer/{cusId}")
+    public ResponseEntity<ProductOrder> addProductOrderV2(
+            @RequestBody ProductOrder order,
+            @PathVariable("cusId")  int customerId
+    ) {
+        return new ResponseEntity<>(PRODUCT_ORDER_SERVICE.addProductOrderV2(order, customerId), HttpStatus.CREATED);
     }
 
     /**

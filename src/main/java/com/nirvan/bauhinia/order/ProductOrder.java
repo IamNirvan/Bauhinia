@@ -3,6 +3,7 @@ package com.nirvan.bauhinia.order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nirvan.bauhinia.customer.Customer;
 import com.nirvan.bauhinia.item.Item;
+import com.nirvan.bauhinia.orderAddress.OrderAddress;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,14 +36,18 @@ public class ProductOrder {
     @OneToMany(mappedBy = "order")
     private List<Item> items;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<OrderAddress> addresses;
+
     public ProductOrder(double price, LocalDate date) {
         this.price = price;
         this.date = date;
     }
 
-    public ProductOrder(double price, LocalDate date, List<Item> itemList) {
+    public ProductOrder(double price, LocalDate date, List<Item> items, List<OrderAddress> addresses) {
         this.price = price;
         this.date = date;
-        this.items = itemList;
+        this.items = items;
+        this.addresses = addresses;
     }
 }

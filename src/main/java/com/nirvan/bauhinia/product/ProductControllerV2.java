@@ -10,8 +10,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v2/products")
 @RequiredArgsConstructor
+@CrossOrigin
 public class ProductControllerV2 {
     private final ProductServiceV2 PRODUCT_SERVICE;
+
+    @GetMapping("product/{product}/manufacturer/{manufacturer}")
+    public ResponseEntity<Boolean> existsByName(
+            @PathVariable("product") String productName,
+            @PathVariable("manufacturer") String manufacturerName
+    ){
+        return new ResponseEntity<>(PRODUCT_SERVICE.existsByName(productName, manufacturerName), HttpStatus.OK);
+    }
 
     /**
      * Provides information regarding all products
@@ -25,8 +34,8 @@ public class ProductControllerV2 {
      * Provides information regarding a specific product
      * @param orderId id of the targeted product order
      * */
-    @GetMapping("/find")
-    public ResponseEntity<Product> fetchProductById(@RequestParam("id") int orderId) {
+    @GetMapping("/find/{id}")
+    public ResponseEntity<Product> fetchProductById(@PathVariable("id") int orderId) {
         return new ResponseEntity<>(PRODUCT_SERVICE.fetchProductById(orderId), HttpStatus.OK);
     }
 
@@ -37,9 +46,9 @@ public class ProductControllerV2 {
      *
      * */
     @PostMapping
-    public ResponseEntity<Boolean> addProduct(
+    public ResponseEntity<Product> addProduct(
             @RequestBody Product product,
-            @RequestParam(name = "categoryId", required = false) List<Integer> categoryIds
+            @RequestParam(name = "catId", required = false) List<Integer> categoryIds
     ) {
         return new ResponseEntity<>(PRODUCT_SERVICE.addProduct(product, categoryIds), HttpStatus.CREATED);
     }
@@ -67,10 +76,10 @@ public class ProductControllerV2 {
      * @param productId id of the targeted product
      * @param categoryIds list of the category ids to add
      * */
-    @PutMapping("/category/add")
+    @PutMapping("/{productId}/category/{categoryId}")
     public ResponseEntity<Boolean> assignCategoryToProduct(
-            @RequestParam("productId") int productId,
-            @RequestParam("categoryId") List<Integer> categoryIds
+            @PathVariable("productId") int productId,
+            @PathVariable("categoryId") List<Integer> categoryIds
     ) {
         return new ResponseEntity<>(PRODUCT_SERVICE.assignCategoryToProduct(productId, categoryIds), HttpStatus.OK);
     }
@@ -80,10 +89,10 @@ public class ProductControllerV2 {
      * @param productId id of the targeted product
      * @param categoryIds list of the category ids to remove
      * */
-    @PutMapping("/category/remove")
+    @PutMapping("{productId}/remove/category/{categoryId}")
     public ResponseEntity<Boolean> removeCategoryFromProduct(
-            @RequestParam("productId") int productId,
-            @RequestParam("categoryId") List<Integer> categoryIds
+            @PathVariable("productId") int productId,
+            @PathVariable("categoryId") List<Integer> categoryIds
     ) {
         return new ResponseEntity<>(PRODUCT_SERVICE.removeCategoryFromProduct(productId, categoryIds), HttpStatus.OK);
     }
@@ -92,8 +101,8 @@ public class ProductControllerV2 {
      * Deletes an existing product
      * @param productId id of the targeted product
      * */
-    @DeleteMapping
-    public ResponseEntity<Boolean> deleteProduct(@RequestParam("id") int productId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> deleteProduct(@PathVariable("id") int productId) {
         return new ResponseEntity<>(PRODUCT_SERVICE.deleteProduct(productId), HttpStatus.OK);
     }
 }

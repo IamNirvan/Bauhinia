@@ -1,21 +1,20 @@
 package com.nirvan.bauhinia.product;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nirvan.bauhinia.category.Category;
 import com.nirvan.bauhinia.item.Item;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Entity(name = "Product")
+@Data
 @Table(name = "product")
 public class Product {
 
@@ -34,6 +33,7 @@ public class Product {
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
+//    @JsonBackReference
     private List<Item> itemList = new ArrayList<>();
 
     public Product(String manufacturer, String productName) {

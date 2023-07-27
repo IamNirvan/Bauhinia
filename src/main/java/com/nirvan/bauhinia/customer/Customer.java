@@ -1,8 +1,10 @@
 package com.nirvan.bauhinia.customer;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nirvan.bauhinia.address.Address;
 import com.nirvan.bauhinia.cart.Cart;
 import com.nirvan.bauhinia.order.ProductOrder;
+import com.nirvan.bauhinia.review.Review;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -26,7 +26,7 @@ public class AddressServiceV2 {
     private static final String INVALID_BUILDING_NUMBER_MESSAGE = "Building number is invalid: %s";
     private static final String INVALID_POSTAL_CODE_MESSAGE = "Postal code is invalid: %s";
 
-    public Address selectById(int addressId) {
+    public Address fetchAddressById(int addressId) {
         return ADDRESS_REPOSITORY.findById(addressId)
                 .orElseThrow(() -> new AddressNotFoundException(String.format(ID_NOT_FOUND_MESSAGE, addressId)));
     }
@@ -40,7 +40,7 @@ public class AddressServiceV2 {
         final String STREET_NAME = address.getStreetName();
         final String BUILDING_NUMBER = address.getBuildingNumber();
         final String POSTAL_CODE = address.getPostalCode();
-        final AddressType ADDRESS_TYPE = address.getAddressType();
+        final String ADDRESS_TYPE = address.getAddressType();
         //
         // Validate the province
         //
@@ -83,7 +83,7 @@ public class AddressServiceV2 {
         //
         Customer customer = CUSTOMER_SERVICE.fetchCustomerById(customerId);
         setAssociation(address, customer);
-        CUSTOMER_SERVICE.saveCustomer(customer);
+//        CUSTOMER_SERVICE.saveCustomer(customer);
         ADDRESS_REPOSITORY.save(address);
         return true;
     }
@@ -104,7 +104,7 @@ public class AddressServiceV2 {
             String buildingNumber,
             String postalCode
     ) throws InvalidParameterException {
-        final Address persistedAddress = selectById(addressId);
+        final Address persistedAddress = fetchAddressById(addressId);
         //
         // Validate the province
         //

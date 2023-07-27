@@ -1,6 +1,7 @@
 package com.nirvan.bauhinia.customer;
 
 import com.nirvan.bauhinia.exception.CustomerNotFoundException;
+import com.nirvan.bauhinia.exception.InvalidCredentialsException;
 import com.nirvan.bauhinia.exception.InvalidParameterException;
 import com.nirvan.bauhinia.exception.WeakPasswordException;
 import com.nirvan.bauhinia.utility.Validation;
@@ -15,17 +16,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomerServiceV2 {
     private final CustomerRepository CUSTOMER_REPOSITORY;
-    private final Validation validation;
+    private final Validation VALIDATION;
     private static final String ID_NOT_FOUND_MESSAGE = "Customer with the following id does not exist: %s";
+    private static final String CONTACT_NUMBER_NOT_FOUND_MESSAGE = "Customer with the following contact number does not exist: %s";
     private static final String INVALID_FIRST_NAME_MESSAGE = "First name is invalid: %s";
     private static final String INVALID_LAST_NAME_MESSAGE = "Last name is invalid: %s";
     private static final String INVALID_PASSWORD_MESSAGE = "Password is invalid: %s";
     private static final String WEAK_PASSWORD_MESSAGE = "Password is weak: %s. Make sure to include " +
             "at least 8 characters. 1 uppercase character, 1 lowercase character and 1 special character";
     private static final String INVALID_EMAIL_MESSAGE = "Email is invalid: %s";
+    private static final String EMAIL_NOT_FOUND_MESSAGE = "Customer with the following email does not exist: %s";
     private static final String DUPLICATE_EMAIL_MESSAGE = "Email is taken: %s";
     private static final String INVALID_CONTACT_NUMBER_MESSAGE = "Contact number is invalid: %s";
     private static final String DUPLICATE_CONTACT_NUMBER_MESSAGE = "Contact number is taken: %s";
+    private static final String INVALID_CREDENTIALS_MESSAGE = "Invalid credentials";
+
+    public CustomerStats getRegisteredCustomerCount() {
+        Integer count = CUSTOMER_REPOSITORY.getRegisteredCustomerCount().get();
+        return new CustomerStats(count);
+    }
 
     public List<Customer> fetchAllCustomers() {
         return CUSTOMER_REPOSITORY.findAll();
@@ -36,63 +45,64 @@ public class CustomerServiceV2 {
                 .orElseThrow(() -> new CustomerNotFoundException(String.format(ID_NOT_FOUND_MESSAGE, customerId)));
     }
 
-    public boolean addCustomer(@NotNull Customer customer) throws InvalidParameterException, WeakPasswordException {
+    public Customer fetchCustomerByEmail(String email) throws CustomerNotFoundException {
+        if(CUSTOMER_REPOSITORY.findCustomerByEmail(email).isPresent()) {
+            return CUSTOMER_REPOSITORY.findCustomerByEmail(email).get();
+        }
+        return null;
+    }
+
+    public Customer fetchCustomerByContactNumber(String contactNumber) {
+        if(CUSTOMER_REPOSITORY.findCustomerByContactNumber(contactNumber).isPresent()) {
+            return CUSTOMER_REPOSITORY.findCustomerByContactNumber(contactNumber).get();
+        }
+        return null;
+    }
+
+    public Customer addCustomer(@NotNull Customer customer) throws InvalidParameterException, WeakPasswordException {
         final String FIRST_NAME = customer.getFirstName();
         final String LAST_NAME = customer.getLastName();
         final String PASSWORD = customer.getPassword();
         final String EMAIL = customer.getEmail();
         final String CONTACT_NUMBER_1 = customer.getContactNumber1();
         final String CONTACT_NUMBER_2 = customer.getContactNumber2();
-        //
-        // Validate the first name
-        //
-        if(!validation.validNonNullAndNonBlankParam(FIRST_NAME)) {
+        if(!VALIDATION.validNonNullAndNonBlankParam(FIRST_NAME)) {
             throw new InvalidParameterException(String.format(INVALID_FIRST_NAME_MESSAGE, FIRST_NAME));
         }
-        //
-        // Validate the last name
-        //
-        if(!validation.validNonNullAndNonBlankParam(LAST_NAME)) {
+
+        if(!VALIDATION.validNonNullAndNonBlankParam(LAST_NAME)) {
             throw new InvalidParameterException(String.format(INVALID_LAST_NAME_MESSAGE, LAST_NAME));
         }
-        //
-        // Make sure the email is not empty and unique
-        //
-        if(!validation.validEmail(EMAIL)) {
+
+        if(!VALIDATION.validEmail(EMAIL)) {
             throw new InvalidParameterException(String.format(INVALID_EMAIL_MESSAGE, EMAIL));
         }
         else if(CUSTOMER_REPOSITORY.existsCustomerByEmail(customer.getEmail())) {
             throw new InvalidParameterException(String.format(DUPLICATE_EMAIL_MESSAGE, EMAIL));
         }
-        //
-        // Check if contact number 1 is valid
-        //
-        if(!validation.validContactNumber(CONTACT_NUMBER_1)) {
+
+        if(!VALIDATION.validContactNumber(CONTACT_NUMBER_1)) {
             throw new InvalidParameterException(String.format(INVALID_CONTACT_NUMBER_MESSAGE, CONTACT_NUMBER_1));
         }
         else if(CUSTOMER_REPOSITORY.findCustomerByContactNumber1(customer.getContactNumber1()).isPresent()) {
             throw new InvalidParameterException(String.format(DUPLICATE_CONTACT_NUMBER_MESSAGE, CONTACT_NUMBER_1));
         }
-        //
-        // Check if contact number 2 is valid
-        //
-        if(!validation.validContactNumber(CONTACT_NUMBER_2)) {
+
+        if(!VALIDATION.validContactNumber(CONTACT_NUMBER_2)) {
             throw new InvalidParameterException(String.format(INVALID_CONTACT_NUMBER_MESSAGE, CONTACT_NUMBER_2));
         }
         else if(CUSTOMER_REPOSITORY.findCustomerByContactNumber2(customer.getContactNumber2()).isPresent()) {
             throw new InvalidParameterException(String.format(DUPLICATE_CONTACT_NUMBER_MESSAGE, CONTACT_NUMBER_2));
         }
-        //
-        // Make sure the password is valid
-        //
-        if(!validation.validNonNullAndNonBlankParam(PASSWORD)) {
+
+        if(!VALIDATION.validNonNullAndNonBlankParam(PASSWORD)) {
             throw new InvalidParameterException(String.format(INVALID_PASSWORD_MESSAGE, PASSWORD));
         }
-        else if(!validation.validPassword(PASSWORD)) {
+        else if(!VALIDATION.validPassword(PASSWORD)) {
             throw new WeakPasswordException(String.format(WEAK_PASSWORD_MESSAGE, PASSWORD));
         }
         CUSTOMER_REPOSITORY.save(customer);
-        return true;
+        return customer;
     }
 
     @Transactional
@@ -104,29 +114,23 @@ public class CustomerServiceV2 {
             String contactNumber2
     ) throws InvalidParameterException {
         final Customer PERSISTED_CUSTOMER = fetchCustomerById(customerId);
-        //
-        // Check if first name is valid
-        //
+
         if(firstName != null) {
-            if(!validation.validNonBlankParam(firstName)) {
+            if(!VALIDATION.validNonBlankParam(firstName)) {
                 throw new InvalidParameterException(String.format(INVALID_FIRST_NAME_MESSAGE, firstName));
             }
             PERSISTED_CUSTOMER.setFirstName(firstName);
         }
-        //
-        // Check if last name is valid
-        //
+
         if(lastName != null) {
-            if(!validation.validNonBlankParam(lastName)) {
+            if(!VALIDATION.validNonBlankParam(lastName)) {
                 throw new InvalidParameterException(String.format(INVALID_FIRST_NAME_MESSAGE, lastName));
             }
             PERSISTED_CUSTOMER.setLastName(lastName);
         }
-        //
-        // Validate contact number 1
-        //
+
         if(contactNumber1 != null) {
-            if(!validation.validContactNumber(contactNumber1)) {
+            if(!VALIDATION.validContactNumber(contactNumber1)) {
                 throw new InvalidParameterException(String.format(INVALID_CONTACT_NUMBER_MESSAGE, contactNumber1));
             }
             else if(CUSTOMER_REPOSITORY.findCustomerByContactNumber1(contactNumber1).isPresent() &&
@@ -135,11 +139,9 @@ public class CustomerServiceV2 {
             }
             PERSISTED_CUSTOMER.setContactNumber1(contactNumber1);
         }
-        //
-        // Validate contact number 2
-        //
+
         if(contactNumber2 != null) {
-            if(!validation.validContactNumber(contactNumber2)) {
+            if(!VALIDATION.validContactNumber(contactNumber2)) {
                 throw new InvalidParameterException(String.format(INVALID_CONTACT_NUMBER_MESSAGE, contactNumber2));
             }
             else if(CUSTOMER_REPOSITORY.findCustomerByContactNumber2(contactNumber2).isPresent() &&
@@ -158,11 +160,9 @@ public class CustomerServiceV2 {
         final Customer PERSISTED_CUSTOMER = fetchCustomerById(request.getId());
         final String EMAIL = request.getEmail();
         final String PASSWORD = request.getPassword();
-        //
-        // Validate the email address
-        //
+
         if(EMAIL != null) {
-            if(!validation.validEmail(EMAIL)) {
+            if(!VALIDATION.validEmail(EMAIL)) {
                 throw new InvalidParameterException(String.format(INVALID_EMAIL_MESSAGE, EMAIL));
             }
             else if(CUSTOMER_REPOSITORY.existsCustomerByEmail(EMAIL) && !PERSISTED_CUSTOMER.getEmail().equals(EMAIL)) {
@@ -170,14 +170,12 @@ public class CustomerServiceV2 {
             }
             PERSISTED_CUSTOMER.setEmail(EMAIL);
         }
-        //
-        // Validate password
-        //
+
         if(PASSWORD != null) {
-            if(!validation.validNonBlankParam(PASSWORD)) {
+            if(!VALIDATION.validNonBlankParam(PASSWORD)) {
                 throw new InvalidParameterException(String.format(INVALID_PASSWORD_MESSAGE, PASSWORD));
             }
-            else if(!validation.validPassword(PASSWORD)) {
+            else if(!VALIDATION.validPassword(PASSWORD)) {
                 throw new WeakPasswordException(String.format(WEAK_PASSWORD_MESSAGE, PASSWORD));
             }
             PERSISTED_CUSTOMER.setPassword(PASSWORD);
@@ -198,4 +196,26 @@ public class CustomerServiceV2 {
     public void saveCustomer(Customer customer) {
         CUSTOMER_REPOSITORY.save(customer);
     }
+
+    public Customer login(CustomerLoginRequest loginRequest) {
+        final String EMAIL = loginRequest.getEmail();
+        final String PASSWORD = loginRequest.getPassword();
+
+        if(!VALIDATION.validNonNullAndNonBlankParam(EMAIL)) {
+            throw new InvalidParameterException(String.format(INVALID_EMAIL_MESSAGE, EMAIL));
+        }
+        if(!VALIDATION.validNonNullAndNonBlankParam(PASSWORD)) {
+            throw new InvalidParameterException(String.format(INVALID_PASSWORD_MESSAGE, PASSWORD));
+        }
+
+        Customer customer = fetchCustomerByEmail(EMAIL);
+        if (customer == null) {
+            throw new CustomerNotFoundException(String.format(EMAIL_NOT_FOUND_MESSAGE, EMAIL));
+        }
+        if(!PASSWORD.equals(customer.getPassword())) {
+            throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
+        }
+        return customer;
+    }
+
 }

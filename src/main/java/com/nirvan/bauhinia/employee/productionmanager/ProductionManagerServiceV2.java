@@ -5,6 +5,7 @@ import com.nirvan.bauhinia.employee.EmployeeLoginRequest;
 import com.nirvan.bauhinia.employee.EmployeeService;
 import com.nirvan.bauhinia.employee.UpdateEmployeeCredentialsRequest;
 import com.nirvan.bauhinia.employee.administrator.Administrator;
+import com.nirvan.bauhinia.employee.inventoryclerk.InventoryClerkStats;
 import com.nirvan.bauhinia.exception.*;
 import com.nirvan.bauhinia.utility.Validation;
 import jakarta.transaction.Transactional;
@@ -28,13 +29,19 @@ public class ProductionManagerServiceV2 extends EmployeeService {
     private static final String DUPLICATE_EMAIL_MESSAGE = "Email is taken: %s";
     private static final String INVALID_PASSWORD_MESSAGE = "Password is invalid: %s";
     private static final String WEAK_PASSWORD_MESSAGE = "Password is weak: %s";
-    private static final String INVALID_CREDENTIALS_MESSAGE = "Aborted! Invalid credentials";
+    private static final String INVALID_CREDENTIALS_MESSAGE = "Invalid credentials";
 
     @Autowired
     public ProductionManagerServiceV2(Validation validation, ProductionManagerRepository pmRepository) {
         super(validation);
         PM_REPOSITORY = pmRepository;
         this.VALIDATION = validation;
+    }
+
+    public ProductionManagerStats getProductionManagerCount() {
+        Integer count = PM_REPOSITORY.getEmployeeCount().get();
+        System.out.println("\n"+ count +"\n");
+        return new ProductionManagerStats(count);
     }
 
     public ProductionManager fetchProductionManagerById(int employeeId) {

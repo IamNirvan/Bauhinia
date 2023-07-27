@@ -2,6 +2,7 @@ package com.nirvan.bauhinia.employee.productionmanager;
 
 import com.nirvan.bauhinia.employee.EmployeeLoginRequest;
 import com.nirvan.bauhinia.employee.UpdateEmployeeCredentialsRequest;
+import com.nirvan.bauhinia.employee.chiefaccountant.ChiefAccountantStats;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v2/production-managers")
 @RequiredArgsConstructor
+@CrossOrigin
 public class ProductionManagerControllerV2 {
     private final ProductionManagerServiceV2 PM_SERVICE;
+
+    @GetMapping("/stats")
+    public ResponseEntity<ProductionManagerStats> getChiefAccountantCount() {
+        return ResponseEntity.ok(PM_SERVICE.getProductionManagerCount());
+    }
 
     /**
      * Provides all the production managers
@@ -36,7 +43,7 @@ public class ProductionManagerControllerV2 {
      * Allows a production manager to log into the system
      * @param loginRequest an instance of EmployeeLoginRequest
      * */
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<ProductionManager> login(@RequestBody EmployeeLoginRequest loginRequest) {
         return new ResponseEntity<>(PM_SERVICE.login(loginRequest), HttpStatus.OK);
     }
@@ -75,8 +82,8 @@ public class ProductionManagerControllerV2 {
      * Deletes an existing production manager
      * @param employeeId id of the targeted production manager
      * */
-    @DeleteMapping
-    public ResponseEntity<Boolean> deleteProductionManager(@RequestParam("id") int employeeId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> deleteProductionManager(@PathVariable("id") int employeeId) {
         return new ResponseEntity<>(PM_SERVICE.deleteProductionManager(employeeId), HttpStatus.OK);
     }
 }

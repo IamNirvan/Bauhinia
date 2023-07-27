@@ -2,6 +2,7 @@ package com.nirvan.bauhinia.review;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nirvan.bauhinia.customer.Customer;
 import com.nirvan.bauhinia.item.Item;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,9 @@ public class Review {
     @Column(name = "content", columnDefinition = "LONGTEXT NOT NULL")
     private String content;
 
+    @Column(name = "rating", nullable = false)
+    private String rating;
+
     @JsonIgnore
     @ManyToOne
     private Item item;
@@ -38,5 +42,11 @@ public class Review {
     public Review(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public Review(String title, String content, String rating) {
+        this.title = title;
+        this.content = content;
+        this.rating = rating;
     }
 }

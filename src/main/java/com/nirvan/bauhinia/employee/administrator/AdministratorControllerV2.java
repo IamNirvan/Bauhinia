@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v2/administrators")
 @RequiredArgsConstructor
+@CrossOrigin
 public class AdministratorControllerV2 {
     private final AdministratorServiceV2 ADMIN_SERVICE;
 
@@ -26,7 +27,7 @@ public class AdministratorControllerV2 {
      * Allows an administrator to be logged in to the system
      * @param loginRequest a request object of type EmployeeLoginRequest
      * */
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<Administrator> login(@RequestBody EmployeeLoginRequest loginRequest) {
         return new ResponseEntity<>(ADMIN_SERVICE.login(loginRequest), HttpStatus.OK);
     }
@@ -68,8 +69,8 @@ public class AdministratorControllerV2 {
      * Deletes an existing administrator
      * @param employeeId id of the targeted administrator
      * */
-    @DeleteMapping
-    public ResponseEntity<Boolean> deleteAdministrator(@RequestParam("id") int employeeId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> deleteAdministrator(@PathVariable("id") int employeeId) {
         return new ResponseEntity<>(ADMIN_SERVICE.deleteAdministrator(employeeId), HttpStatus.OK);
     }
 }
