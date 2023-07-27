@@ -42,19 +42,4 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(payload);
     }
 
-    public ResponseEntity<ExceptionPayload> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
-        //
-        // Get the fields and their corresponding error messages and add them into the hash map
-        //
-        Map<String, String> errorMessageMapping = new HashMap<>();
-        exception.getBindingResult().getFieldErrors().forEach(
-                (error) -> errorMessageMapping.put(error.getField(), error.getDefaultMessage())
-        );
-        ExceptionPayload payload = ExceptionPayload.builder()
-                .errorMessageMapping(errorMessageMapping)
-                .httpStatus(HttpStatus.BAD_REQUEST)
-                .zonedDateTime(ZonedDateTime.now(ZoneId.of("Z")))
-                .build();
-        return ResponseEntity.badRequest().body(payload);
-    }
 }

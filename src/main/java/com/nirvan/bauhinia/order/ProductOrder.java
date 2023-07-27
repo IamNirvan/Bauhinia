@@ -39,4 +39,10 @@ public class ProductOrder {
         this.price = price;
         this.date = date;
     }
+
+    public ProductOrder(double price, LocalDate date, List<Item> itemList) {
+        this.price = price;
+        this.date = date;
+        this.items = itemList;
+    }
 }

@@ -20,11 +20,13 @@ public class Category {
     @GeneratedValue
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @JsonIgnore // To prevent a circular reference
-    @ManyToMany(mappedBy = "categories")
+    @ManyToMany
+    @JoinTable(name = "product_categories",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id"))
     private List<Product> products;
 
     public Category(String name) {

@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @DiscriminatorValue(value = "INVENTORY_CLERK")
 public class InventoryClerk extends Employee {
 
-    public InventoryClerk(String firstName, String lastName, String email) {
-        super(firstName, lastName, email);
+    public InventoryClerk(String firstName, String lastName, String email, String password) {
+        super(firstName, lastName, email, password);
     }
 
 }

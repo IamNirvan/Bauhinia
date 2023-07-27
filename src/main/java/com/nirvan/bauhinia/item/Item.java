@@ -3,6 +3,7 @@ package com.nirvan.bauhinia.item;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nirvan.bauhinia.cart.Cart;
 import com.nirvan.bauhinia.order.ProductOrder;
+import com.nirvan.bauhinia.product.Product;
 import com.nirvan.bauhinia.review.Review;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,9 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Entity(name = "Item")
-@Table(name = "item")
+@Table(name = "item", uniqueConstraints = {
+        @UniqueConstraint(name = "sku_unique", columnNames = "sku")
+})
 public class Item {
 
     @Id
@@ -43,12 +46,26 @@ public class Item {
 
     @ManyToOne
     @JsonIgnore
+    @JoinColumn(columnDefinition = "Integer default null")
     private ProductOrder order;
+
+    @ManyToOne
+    @JsonIgnore
+//    @JoinColumn(name="product_id_fk")
+    private Product product;
 
     public Item(String sku, String size, String colour, double cost) {
         this.sku = sku;
         this.size = size;
         this.colour = colour;
         this.cost = cost;
+    }
+
+    public Item(String sku, String size, String colour, double cost, Product product) {
+        this.sku = sku;
+        this.size = size;
+        this.colour = colour;
+        this.cost = cost;
+        this.product = product;
     }
 }

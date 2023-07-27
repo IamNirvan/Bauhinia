@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @DiscriminatorValue(value = "CHIEF_ACCOUNTANT")
 public class ChiefAccountant extends Employee {
 
-    public ChiefAccountant(String firstName, String lastName, String email) {
-        super(firstName, lastName, email);
+    public ChiefAccountant(String firstName, String lastName, String email, String password) {
+        super(firstName, lastName, email, password);
     }
 
 }

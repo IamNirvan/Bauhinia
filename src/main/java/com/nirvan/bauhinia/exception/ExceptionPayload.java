@@ -15,5 +15,4 @@ public class ExceptionPayload {
     private String message;
     private HttpStatus httpStatus;
     private ZonedDateTime zonedDateTime;
-    private Map<String, String> errorMessageMapping;
 }
