@@ -10,14 +10,15 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/api/v2/reviews")
 @RequiredArgsConstructor
+@CrossOrigin
 public class ReviewControllerV2 {
     private final ReviewServiceV2 REVIEW_SERVICE;
 
     /**
      * Provides the information regarding a specific review
      * */
-    @GetMapping("/find")
-    public ResponseEntity<Review> fetchReviewById(@RequestParam(name = "id") int reviewId) {
+    @GetMapping("/find/{id}")
+    public ResponseEntity<Review> fetchReviewById(@PathVariable("id") int reviewId) {
         return new ResponseEntity<>(REVIEW_SERVICE.fetchReviewById(reviewId), HttpStatus.OK);
     }
 
@@ -25,9 +26,18 @@ public class ReviewControllerV2 {
      * Provides all the reviews for a specific item
      * @param itemId id of the targeted item
      * */
-    @GetMapping("/find/item")
-    public ResponseEntity<List<Review>> fetchAllReviewsByItem(@RequestParam("itemId") int itemId) {
-        return new ResponseEntity<>(REVIEW_SERVICE.fetchAllReviewsByItem(itemId), HttpStatus.OK);
+    @GetMapping("/find/item/id/{itemId}")
+    public ResponseEntity<List<Review>> fetchAllReviewsByItem(@PathVariable("itemId") int itemId) {
+        return new ResponseEntity<>(REVIEW_SERVICE.fetchAllReviewsByItemId(itemId), HttpStatus.OK);
+    }
+
+    /**
+     * Provides all the reviews for a specific item based on the item's SKU
+     * @param sku SKU of the targeted item
+     * */
+    @GetMapping("/find/item/sku/{sku}")
+    public ResponseEntity<List<Review>> fetchAllReviewsByItem(@PathVariable("sku") String sku) {
+        return new ResponseEntity<>(REVIEW_SERVICE.fetchAllReviewsByItemSku(sku), HttpStatus.OK);
     }
 
     /**
@@ -35,10 +45,10 @@ public class ReviewControllerV2 {
      * @param review review object
      * @param itemId the targeted item
      * */
-    @PostMapping
+    @PostMapping("/{itemId}")
     public ResponseEntity<Boolean> addReview(
             @RequestBody Review review,
-            @RequestParam("itemId") int itemId
+            @PathVariable("itemId") int itemId
     ) {
         return new ResponseEntity<>(REVIEW_SERVICE.addReview(review, itemId), HttpStatus.CREATED);
     }
@@ -49,21 +59,22 @@ public class ReviewControllerV2 {
      * @param title the new title. Optional
      * @param content the new content. Optional
      * */
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<Boolean> updateReview(
-            @RequestParam("id") int reviewId,
-            @RequestParam("title") String title,
-            @RequestParam("content") String content
+            @PathVariable("id") int reviewId,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam(value = "rating" ,required = false) String rating
     ) {
-        return new ResponseEntity<>(REVIEW_SERVICE.updateReview(reviewId, title, content), HttpStatus.OK);
+        return new ResponseEntity<>(REVIEW_SERVICE.updateReview(reviewId, title, content, rating), HttpStatus.OK);
     }
 
     /**
      * Deletes an existing review
      * @param reviewId id of the targeted review
      * */
-    @DeleteMapping
-    public ResponseEntity<Boolean> deleteReview(@RequestParam("id") int reviewId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> deleteReview(@PathVariable("id") int reviewId) {
         return new ResponseEntity<>(REVIEW_SERVICE.deleteReview(reviewId), HttpStatus.OK);
     }
 }

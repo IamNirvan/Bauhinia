@@ -6,6 +6,7 @@ import com.nirvan.bauhinia.utility.Validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -14,6 +15,7 @@ public class CategoryServiceV2 {
     private final CategoryRepository CATEGORY_REPOSITORY;
     private final Validation VALIDATION;
     private static final String ID_NOT_FOUND_MESSAGE = "Category with the following id does not exist: %s";
+    private static final String NAME_NOT_FOUND_MESSAGE = "Category with the following name does not exist: %s";
     private static final String DUPLICATE_NAME_MESSAGE = "Category name already exists: %s";
     private static final String INVALID_NAME_MESSAGE = "Category name is invalid: %s";
 
@@ -26,7 +28,12 @@ public class CategoryServiceV2 {
                 .orElseThrow(() -> new CategoryNotFoundException(String.format(ID_NOT_FOUND_MESSAGE, categoryId)));
     }
 
-    public Boolean addCategory(Category category) {
+    public Category fetchCategoryByName(String name) {
+        return CATEGORY_REPOSITORY.findCategoryByName(name)
+                .orElseThrow(() -> new CategoryNotFoundException(String.format(NAME_NOT_FOUND_MESSAGE, name)));
+    }
+
+    public Category addCategory(Category category) {
         final String CATEGORY_NAME = category.getName();
         //
         // Check if the category name is valid
@@ -38,7 +45,7 @@ public class CategoryServiceV2 {
             throw new InvalidParameterException(String.format(DUPLICATE_NAME_MESSAGE, CATEGORY_NAME));
         }
         CATEGORY_REPOSITORY.save(category);
-        return true;
+        return category;
     }
 
     public Boolean updateCategory(int categoryId, String categoryName) {
@@ -69,5 +76,12 @@ public class CategoryServiceV2 {
 
     public void save(Category category) {
         CATEGORY_REPOSITORY.save(category);
+    }
+
+    public Category clearProducts(int categoryId) {
+        Category category = fetchCategoryById(categoryId);
+        category.setProducts(new ArrayList<>());
+        CATEGORY_REPOSITORY.save(category);
+        return category;
     }
 }

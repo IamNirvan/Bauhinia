@@ -28,7 +28,7 @@ public class AdministratorServiceV2 extends EmployeeService {
     private static final String DUPLICATE_EMAIL_MESSAGE = "Email is taken: %s";
     private static final String INVALID_PASSWORD_MESSAGE = "Password is invalid: %s";
     private static final String WEAK_PASSWORD_MESSAGE = "Password is weak: %s";
-    private static final String INVALID_CREDENTIALS_MESSAGE = "Aborted! Invalid credentials";
+    private static final String INVALID_CREDENTIALS_MESSAGE = "Invalid credentials";
 
     @Autowired
     public AdministratorServiceV2(Validation VALIDATION, AdministratorRepository adminRepository, Validation validation) {

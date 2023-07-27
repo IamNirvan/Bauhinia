@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v2/addresses")
 @RequiredArgsConstructor
+@CrossOrigin
 public class AddressControllerV2 {
     private final AddressServiceV2 ADDRESS_SERVICE;
     private final CustomerServiceV2 CUSTOMER_SERVICE;
@@ -21,15 +22,15 @@ public class AddressControllerV2 {
      * */
     @GetMapping("/find")
     public ResponseEntity<Address> fetchAddressById(@RequestParam("id") int addressId) {
-        return new ResponseEntity<>(ADDRESS_SERVICE.selectById(addressId), HttpStatus.OK);
+        return new ResponseEntity<>(ADDRESS_SERVICE.fetchAddressById(addressId), HttpStatus.OK);
     }
 
     /**
      * Provides information regarding the address(s) of a particular customer
      * @param customerId the id of the customer
      * */
-    @GetMapping("/find/customer")
-    public ResponseEntity<List<Address>> fetchAddressByCustomer(@RequestParam("customerId") int customerId) {
+    @GetMapping("/find/customer/{id}")
+    public ResponseEntity<List<Address>> fetchAddressByCustomer(@PathVariable("id") int customerId) {
         return new ResponseEntity<>(CUSTOMER_SERVICE.fetchCustomerById(customerId).getAddresses(), HttpStatus.OK);
     }
 
@@ -38,10 +39,10 @@ public class AddressControllerV2 {
      * @param address the new address to be added
      * @param customerId the id of the customer who owns the address
      * */
-    @PostMapping
+    @PostMapping("/customer/{customerId}")
     public ResponseEntity<Boolean> addAddress(
             @RequestBody Address address,
-            @RequestParam("customerId") int customerId
+            @PathVariable("customerId") int customerId
     ) {
         return new ResponseEntity<>(ADDRESS_SERVICE.addAddress(address, customerId), HttpStatus.CREATED);
     }

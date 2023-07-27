@@ -1,5 +1,7 @@
 package com.nirvan.bauhinia.review;
 
+import com.nirvan.bauhinia.customer.Customer;
+import com.nirvan.bauhinia.customer.CustomerServiceV2;
 import com.nirvan.bauhinia.exception.InvalidParameterException;
 import com.nirvan.bauhinia.exception.ItemNotFoundException;
 import com.nirvan.bauhinia.exception.ReviewNotFoundException;
@@ -19,17 +21,26 @@ public class ReviewServiceV2 {
     private final ReviewRepository REVIEW_REPOSITORY;
     private final ItemServiceV2 ITEM_SERVICE;
     private final Validation VALIDATION;
+
+    private final CustomerServiceV2 CUSTOMER_SERVICE;
+
+
     private static final String ID_NOT_FOUND_MESSAGE = "Review with the following id does not exist: %s";
     private static final String INVALID_TITLE_MESSAGE = "Title is invalid: %s";
     private static final String INVALID_CONTENT_MESSAGE = "Content is invalid: %s";
+    private static final String INVALID_RATING_MESSAGE = "Rating is invalid: %s";
 
     public Review fetchReviewById(int reviewId) throws ReviewNotFoundException {
         return REVIEW_REPOSITORY.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(String.format(ID_NOT_FOUND_MESSAGE, reviewId)));
     }
 
-    public List<Review> fetchAllReviewsByItem(int itemId) {
+    public List<Review> fetchAllReviewsByItemId(int itemId) {
         return ITEM_SERVICE.fetchItemById(itemId).getReviews();
+    }
+
+    public List<Review> fetchAllReviewsByItemSku(String sku) {
+        return ITEM_SERVICE.fetchItemBySku(sku).getReviews();
     }
 
     public Boolean addReview(
@@ -63,27 +74,32 @@ public class ReviewServiceV2 {
     public Boolean updateReview(
             int reviewId,
             String title,
-            String content
+            String content,
+            String rating
     ) throws InvalidParameterException {
         final Review PERSISTED_REVIEW = fetchReviewById(reviewId);
-        //
-        // Make sure title is valid
-        //
+
         if(title != null) {
             if(!VALIDATION.validNonBlankParam(title)) {
                 throw new InvalidParameterException(String.format(INVALID_TITLE_MESSAGE, title));
             }
             PERSISTED_REVIEW.setTitle(title);
         }
-        //
-        // Make sure the content is valid
-        //
+
         if(content != null) {
             if(!VALIDATION.validNonNullAndNonBlankParam(content)) {
                 throw new InvalidParameterException(String.format(INVALID_CONTENT_MESSAGE, content));
             }
             PERSISTED_REVIEW.setContent(content);
         }
+
+        if(rating != null) {
+            if(!VALIDATION.validNonNullAndNonBlankParam(rating)) {
+                throw new InvalidParameterException(String.format(INVALID_RATING_MESSAGE, rating));
+            }
+            PERSISTED_REVIEW.setRating(rating);
+        }
+
         REVIEW_REPOSITORY.save(PERSISTED_REVIEW);
         return true;
     }
@@ -95,4 +111,5 @@ public class ReviewServiceV2 {
         REVIEW_REPOSITORY.deleteById(reviewId);
         return true;
     }
+
 }

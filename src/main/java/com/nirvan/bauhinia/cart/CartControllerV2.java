@@ -8,14 +8,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(path = "/api/v2/carts")
 @RequiredArgsConstructor
+@CrossOrigin
 public class CartControllerV2 {
     private final CartServiceV2 CART_SERVICE;
 
     /**
      * Provides information regarding all the items within a specific cart
      * */
-    @GetMapping("/find")
-    public ResponseEntity<Cart> fetchCartById(@RequestParam(name = "cartId") int cartId) {
+    @GetMapping("/{cartId}")
+    public ResponseEntity<Cart> fetchCartById(@PathVariable("cartId") int cartId) {
         return new ResponseEntity<>(CART_SERVICE.fetchCartById(cartId), HttpStatus.OK);
     }
 }

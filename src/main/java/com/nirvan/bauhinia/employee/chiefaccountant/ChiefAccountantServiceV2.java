@@ -4,12 +4,10 @@ import com.nirvan.bauhinia.employee.AccountType;
 import com.nirvan.bauhinia.employee.EmployeeLoginRequest;
 import com.nirvan.bauhinia.employee.EmployeeService;
 import com.nirvan.bauhinia.employee.UpdateEmployeeCredentialsRequest;
-import com.nirvan.bauhinia.employee.administrator.Administrator;
 import com.nirvan.bauhinia.exception.*;
 import com.nirvan.bauhinia.utility.Validation;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -29,14 +27,18 @@ public class ChiefAccountantServiceV2 extends EmployeeService {
     private static final String DUPLICATE_EMAIL_MESSAGE = "Email is taken: %s";
     private static final String INVALID_PASSWORD_MESSAGE = "Password is invalid: %s";
     private static final String WEAK_PASSWORD_MESSAGE = "Password is weak: %s";
-
-    private static final String INVALID_CREDENTIALS_MESSAGE = "Aborted! Invalid credentials";
+    private static final String INVALID_CREDENTIALS_MESSAGE = "Invalid credentials";
 
     @Autowired
     public ChiefAccountantServiceV2(Validation VALIDATION, ChiefAccountantRepository caRepository, Validation validation) {
         super(VALIDATION);
         CA_REPOSITORY = caRepository;
         this.VALIDATION = validation;
+    }
+
+    public ChiefAccountantStats getChiefAccountantCount() {
+        Integer count = CA_REPOSITORY.getEmployeeCount().get();
+        return new ChiefAccountantStats(count);
     }
 
     private ChiefAccountant fetchAdministratorByEmail(String email) {

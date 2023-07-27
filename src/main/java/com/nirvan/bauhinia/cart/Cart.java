@@ -19,10 +19,12 @@ public class Cart {
     @GeneratedValue
     private int id;
 
+//    @OneToMany(mappedBy = "cart")
+//    private List<CartItem> items;
+
     @ManyToMany()
     @JoinTable(name = "cart_items",
             joinColumns = @JoinColumn(name = "cart_id"),
             inverseJoinColumns = @JoinColumn(name = "item_id"))
     private List<Item> items;
-
 }

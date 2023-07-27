@@ -27,13 +27,18 @@ public class InventoryClerkServiceV2 extends EmployeeService {
     private static final String DUPLICATE_EMAIL_MESSAGE = "Email is taken: %s";
     private static final String INVALID_PASSWORD_MESSAGE = "Password is invalid: %s";
     private static final String WEAK_PASSWORD_MESSAGE = "Password is weak: %s";
-    private static final String INVALID_CREDENTIALS_MESSAGE = "Aborted! Invalid credentials";
+    private static final String INVALID_CREDENTIALS_MESSAGE = "Invalid credentials";
 
     @Autowired
     public InventoryClerkServiceV2(Validation validation, InventoryClerkRepository icRepository) {
         super(validation);
         IC_REPOSITORY = icRepository;
         this.VALIDATION = validation;
+    }
+
+    public InventoryClerkStats getInventoryClerkCount() {
+        Integer count = IC_REPOSITORY.getEmployeeCount().get();
+        return new InventoryClerkStats(count);
     }
 
     public InventoryClerk fetchInventoryClerkById(int employeeId) {
@@ -54,15 +59,11 @@ public class InventoryClerkServiceV2 extends EmployeeService {
             throws InvalidParameterException, WeakPasswordException {
         final String EMAIL = inventoryClerk.getEmail();
         priorInsertValidation(inventoryClerk);
-        //
-        // Check if the administrator's email is not taken
-        //
+
         if(IC_REPOSITORY.existsInventoryClerkByEmail(inventoryClerk.getEmail())) {
             throw new InvalidParameterException(String.format(DUPLICATE_EMAIL_MESSAGE, EMAIL));
         }
-        //
-        // Set the account type
-        //
+
         inventoryClerk.setAccountType(AccountType.ADMINISTRATOR);
         try {
             IC_REPOSITORY.save(inventoryClerk);
@@ -80,18 +81,14 @@ public class InventoryClerkServiceV2 extends EmployeeService {
             String lastName
     ) {
         final InventoryClerk PERSISTED_INVENTORY_CLERK = fetchInventoryClerkById(employeeId);
-        //
-        // Check if first name is valid
-        //
+
         if(firstName != null) {
             if(!VALIDATION.validNonBlankParam(firstName)) {
                 throw new InvalidParameterException(String.format(INVALID_FIRST_NAME_MESSAGE, firstName));
             }
             PERSISTED_INVENTORY_CLERK.setFirstName(firstName);
         }
-        //
-        // Check if last name is valid
-        //
+
         if(lastName != null) {
             if(!VALIDATION.validNonBlankParam(lastName)) {
                 throw new InvalidParameterException(String.format(INVALID_LAST_NAME_MESSAGE, lastName));
@@ -108,9 +105,7 @@ public class InventoryClerkServiceV2 extends EmployeeService {
         final InventoryClerk PERSISTED_INVENTORY_CLERK = fetchInventoryClerkById(updateCredentialsRequest.getId());
         final String EMAIL = updateCredentialsRequest.getEmail();
         final String PASSWORD = updateCredentialsRequest.getPassword();
-        //
-        // Validate email
-        //
+
         if(!VALIDATION.validNonNullAndNonBlankParam(EMAIL)) {
             throw new InvalidParameterException(String.format(INVALID_EMAIL_MESSAGE, EMAIL));
         }
@@ -118,9 +113,7 @@ public class InventoryClerkServiceV2 extends EmployeeService {
             throw new InvalidParameterException(String.format(DUPLICATE_EMAIL_MESSAGE, EMAIL));
         }
         PERSISTED_INVENTORY_CLERK.setEmail(EMAIL);
-        //
-        // Validate password
-        //
+
         if(!VALIDATION.validNonNullAndNonBlankParam(PASSWORD)) {
             throw new InvalidParameterException(String.format(INVALID_PASSWORD_MESSAGE, PASSWORD));
         }
@@ -139,10 +132,8 @@ public class InventoryClerkServiceV2 extends EmployeeService {
         IC_REPOSITORY.deleteById(employeeId);
         return true;
     }
-    // TODO: implement this...
 
     public InventoryClerk login(EmployeeLoginRequest loginRequest) {
-        // Check and see if valid (non-null) credentials were passed
         final String EMAIL = loginRequest.getEmail();
         final String PASSWORD = loginRequest.getPassword();
 
@@ -153,11 +144,11 @@ public class InventoryClerkServiceV2 extends EmployeeService {
             throw new InvalidParameterException(String.format(INVALID_PASSWORD_MESSAGE, PASSWORD));
         }
 
-        // Check if the credentials exist
         InventoryClerk inventoryClerk = fetchInventoryClerkByEmail(EMAIL);
         if(!PASSWORD.equals(inventoryClerk.getPassword())) {
             throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
         }
         return inventoryClerk;
     }
+
 }

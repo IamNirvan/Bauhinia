@@ -26,23 +26,23 @@ public class ProductServiceV2 {
         return PRODUCT_REPOSITORY.findAll();
     }
 
+    public Boolean existsByName(String productName, String manufacturerName) {
+        return PRODUCT_REPOSITORY.existsByProductName(productName) && PRODUCT_REPOSITORY.existsByManufacturer(manufacturerName);
+    }
+
     public Product fetchProductById(int productId) throws ProductNotFoundException {
         return PRODUCT_REPOSITORY.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(String.format(ID_NOT_FOUND_MESSAGE, productId)));
     }
 
-    public Boolean addProduct(@NotNull Product product, List<Integer> categoryIds) throws InvalidParameterException {
+    public Product addProduct(@NotNull Product product, List<Integer> categoryIds) throws InvalidParameterException {
         final String manufacturerName = product.getManufacturer();
         final String productName = product.getProductName();
-        //
-        // Check if the manufacturer is valid
-        //
+
         if(!validation.validNonNullAndNonBlankParam(manufacturerName)) {
             throw new InvalidParameterException(String.format(INVALID_MANUFACTURER_MESSAGE, manufacturerName));
         }
-        //
-        // Check if the name is valid
-        //
+
         if(!validation.validNonNullAndNonBlankParam(productName)) {
             throw new InvalidParameterException(String.format(INVALID_PRODUCT_NAME_MESSAGE, productName));
         }
@@ -51,7 +51,8 @@ public class ProductServiceV2 {
             assignCategoryToProduct(product.getId(), categoryIds);
 
         }
-        return true;
+        PRODUCT_REPOSITORY.save(product);
+        return product;
     }
 
     @Transactional
@@ -61,18 +62,14 @@ public class ProductServiceV2 {
             String productName
     ) throws InvalidParameterException {
         Product persistedProduct = fetchProductById(productId);
-        //
-        // Check if the manufacturer is valid
-        //
+
         if(manufacturerName != null) {
             if(!validation.validNonBlankParam(manufacturerName)) {
                 throw new InvalidParameterException(String.format(INVALID_MANUFACTURER_MESSAGE, manufacturerName));
             }
             persistedProduct.setManufacturer(manufacturerName);
         }
-        //
-        // Check if the product name is valid
-        //
+
         if(productName != null) {
             if(!validation.validNonBlankParam(productName)) {
                 throw new InvalidParameterException(String.format(INVALID_PRODUCT_NAME_MESSAGE, productName));
@@ -118,7 +115,6 @@ public class ProductServiceV2 {
             List<Product> productlist = category.getProducts();
             productlist.remove(product);
             category.setProducts(productlist);
-            CATEGORY_SERVICE.save(category);
         });
 
         PRODUCT_REPOSITORY.save(product);

@@ -14,7 +14,14 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     Optional<Customer> findCustomerByContactNumber1(String number);
     Optional<Customer> findCustomerByContactNumber2(String number);
 
+    @Query("SELECT c FROM Customer c WHERE c.contactNumber1 = ?1 OR c.contactNumber2 = ?1")
+    Optional<Customer> findCustomerByContactNumber(String number);
+
     @Query("SELECT a FROM Address  a WHERE a.id = ?1")
     Optional<Customer> findCustomerByAddressId(int Id);
 
+    Optional<Customer> findCustomerByEmail(String email);
+
+    @Query("SELECT count(c) FROM Customer c")
+    Optional<Integer> getRegisteredCustomerCount();
 }
